@@ -58,7 +58,7 @@
 %token condicionParaTK
 %token finCondicionParaTK
 %token condicionSiNoTK
-%token <tipoVar> tipoVarTK // unir los tipos de variables para simplificar
+%token tipoVarTK
 %token identificadoresTK
 %token nombreConstanteTK
 %token puntoTK
@@ -160,9 +160,15 @@ d_tipo: literalTuplaTK lista_campos finLiteralTuplaTK {}
 lista_campos: identificadoresTK dosPuntosTK d_tipo puntoYcomaTK lista_campos {}
     |/*vacio*/ {};
 
-decl_ent: entradaTK listaDeclVariablesV {};
+decl_ent: entradaTK lista_d_var {};
 
-decl_sal: salidaTK listaDeclVariablesV {};
+decl_sal: salidaTK lista_d_var{};
+
+lista_d_var: lista_id dosPuntosTK d_tipo puntoYcomaTK lista_d_var {}
+    | /*vacio*/ {};
+
+lista_id: identificadoresTK separadorTK lista_id {}
+    | identificadoresTK {};
 
 decl_ent_sal: decl_ent {}
     | decl_ent decl_sal {}
