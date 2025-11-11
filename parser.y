@@ -1,5 +1,7 @@
 %{
     #include <stdio.h>
+    #include "nombresDeTipos.h"
+	#include "literal.h"
     int yylex(); // Usamos la funcion que se crea gracias a flex
     void yyerror(char *); // Prototipo de una funcion necesaria
     extern FILE* yyin;
@@ -34,7 +36,7 @@
 %token hastaTK
 %token tablaTK
 %token varTK
-%token fvarTK
+%token finVarTK
 %token mientrasTK
 %token condicionMientrasTK
 %token finMientrasTK
@@ -48,10 +50,10 @@
 %token ffuncionTK
 %token entradaTK
 %token salidaTK
-%token entradaSalidaTk
+%token entradaSalidaTK
 %token asignacionTK
 %token condicionSiTK
-%token fincondicionSiTK
+%token finCondicionSiTK
 %token condicionEntoncesTK
 %token condicionParaTK
 %token finCondicionParaTK
@@ -76,7 +78,11 @@
 %left negacionTK
 
 
-
+%union{
+	char* cadena;
+	LiteralT literal;
+	int entero;
+}
 
 %%
 
@@ -137,7 +143,7 @@ d_par_form: d_p_form puntoYcomaTK d_par_form {}
 
 d_p_form: entradaTK declaracionDeVariablesV dosPuntosTK d_tipo {}
     | salidaTK declaracionDeVariablesV dosPuntosTK d_tipo {}
-    | entradaSalidaTk declaracionDeVariablesV dosPuntosTK d_tipo {};
+    | entradaSalidaTK declaracionDeVariablesV dosPuntosTK d_tipo {};
 
 declaracion_tipo: tipoTK lista_de_tipo ftipoTK {};
 
@@ -173,7 +179,7 @@ instruccion: continuarTK {}
 
 asignacion: operando asignacionTK expresion {};
 
-alternativa: condicionSiTK expresion condicionEntoncesTK instrucciones lista_opciones fincondicionSiTK {};
+alternativa: condicionSiTK expresion condicionEntoncesTK instrucciones lista_opciones finCondicionSiTK {};
 
 lista_opciones: condicionSiNoTK expresion condicionEntoncesTK instrucciones lista_opciones {}
     |/*vacio*/ {};
@@ -199,7 +205,7 @@ listaDeclConstantesV :  declaracionDeConstanteV {}
 
 declaracionDeConstanteV : nombreConstanteTK igualTK literalTK {};
 
-declaracionVariablesV: varTK listaDeclVariablesV fvarTK{};
+declaracionVariablesV: varTK listaDeclVariablesV finVarTK{};
 
 listaDeclVariablesV : declaracionDeVariablesV {}
     | listaDeclVariablesV puntoYcomaTK listaDeclVariablesV {};
@@ -207,3 +213,18 @@ listaDeclVariablesV : declaracionDeVariablesV {}
 declaracionDeVariablesV: identificadoresTK dosPuntosTK tipoVarTK {};
 
 %%
+int main(int argc, char **argv){
+	#if defined YYDEBUG
+	yydebug=1;
+	#endif
+	++argv, --argc;
+	if (argc > 0)
+		yyin = fopen(argv[0], "r");
+	else
+		yyin = stdin;
+	yyparse();
+}
+
+void yyerror(char * s){
+	printf("\tBISON: ERROR, %s\n", s);
+}
