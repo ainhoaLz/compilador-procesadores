@@ -290,19 +290,19 @@ puntoDR \.
 	return condicionSiNoTK;
 }
 {enteroDR}	{
-	printf("(enteroTK, %s) \n", yytext); //unir tipo
+	return tipoVarTK;
 }
 {booleanoDR}	{
-	printf("(booleanoTK, %s) \n", yytext);//unir tipo
+	return tipoVarTK;
 }
 {realDR}	{
-	printf("(realTK, %s) \n", yytext);//unir tipo
+	return tipoVarTK;
 }
 {cadenaDR}	{
-	printf("(cadenaTK, %s) \n", yytext);//unir tipo
+	return tipoVarTK;
 }
 {caracterDR}	{
-	printf("(caracterTK, %s) \n", yytext);//unir tipo
+	return tipoVarTK;
 }
 [a-z][a-zA-Z0-9]*	{
     yylval.cadena = strdup(yytext);
