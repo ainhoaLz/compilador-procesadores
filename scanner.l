@@ -12,7 +12,7 @@
 	#include <stdio.h> //Para poder escribir en el terminal
 	#include <stdlib.h> //Para usar exit()
 	#include <strings.h> //Para trabajar con cadenas de caracteres
-	#include "literal.h"
+	//#include "literal.h"
 
 	void errorEnScanner(char*, char*); //prototipo necesario para compilar
 	extern FILE *yyin;
@@ -29,7 +29,7 @@ puntoYComaDR	;
 verdaderoDR	(?i:verdadero)
 comparacionDR <|<=|>|>=|<>
 sumaYrestaDR \+|\-
-divisionYmultiplicacionYpotenciaDR (?i:mod)|(?i:div)|\*|\^
+divisionYmultiplicacionDR (?i:mod)|(?i:div)|\*
 comillasDR \"
 comillaSimplesDR \'
 precondicionDR (?i:Prec:)
@@ -82,61 +82,67 @@ puntoDR \.
  //PARTE 2: Reglas
 
 (?i:const)	{
-	printf("(constTK, %s)\n", yytext);
+	return constTK;
 }
 {falsoDR}	{
-	printf("(literalBooleanoTK, falso)\n");
+	yylval.literal.tipoDelValor = BOOLEANO;
+	yylval.literal.valor.valorBooleano = FALSO;
+	return literalTK;
 }
 {fconstDR}	{
-	printf("(fconstTK, %s)\n", yytext);
+	return fconstTK;
 }
 =	{
-	printf("(igualTK, %s)\n", yytext);
+	return igualTK;
 }
 ,	{
-	printf("(separadorTK, %s)\n", yytext);
+	return separadorTK;
 }
 :	{
-	printf("(dosPuntosTK, %s) \n", yytext);
+	return dosPuntosTK;
 }
 {puntoTK}  {
-	printf("(puntoTK, %s) \n", yytext);
+	return puntoTK;
 }
 {comillasDR} {
-	printf("(comillasTK, %s) \n", yytext);
+	return comillasTK;
 }
 {comillaSimplesDR} {
-	printf("(comillaSimpleTK, %s) \n", yytext);
+	return comillaSimpleTK;
 }
 "("	{
-	printf("(aperturaParentesisTK, %s) \n", yytext);
+	return aperturaParentesisTK;
 }
 ")"	{
-	printf("(cierreParentesisTK, %s) \n", yytext);
+	return cierreParentesisTK;
 }
 "["	{
-	printf("(aperturaArrayTK, %s) \n", yytext);
+	return aperturaArrayTK;
 }
 "]"	{
-	printf("(cierreArrayTK, %s) \n", yytext);
+	return cierreArrayTK;
 }
 "{"	{
-	printf("(aperturComentarioTK, %s) \n", yytext);
+	return aperturComentarioTK;
 }
 "}"	{
-	printf("(cierreComentarioTK, %s) \n", yytext);
+	return cierreComentarioTK;
 }
 {sumaYrestaDR} {
-	printf("(sumaYrestaTK, %s) \n", yytext);
+	return sumaYrestaTK;
 }
 {negacionDR} {
-	printf("(negacionTK, %s) \n", yytext);
+	return negacionTK;
 }
 {deDR} {
-	printf("(deTK, %s) \n", yytext);
+	return deTK;
 }
 '([^']|\/')*'	{
-	printf("(literalCadenaTK, %s)\n", yytext);
+	yylval.literal.tipoDelValor = CADENA;
+	if ((yylval.literal.valor.valorCadena = strdup(yytext)) == NULL )
+		errorEnScanner("No hay memoria para strdup() al leer %s\n", yytext);
+	else
+		return literalTK;
 }
 {literalCaracterDR}	{
 	yylval.literal.tipoDelValor = CARACTER;
@@ -144,157 +150,167 @@ puntoDR \.
 	return literalTK;
 }
 {literalEnteroDR}	{
-	printf("(literalEnteroTK, %d)\n", atoi(yytext));
+	yylval.literal.tipoDelValor = ENTERO;
+	yylval.literal.valor.valorEntero = atoi(yytext);
+	return literalTK;
 }
 [+-]?[0-9]*(\.[0-9]+)?([eE][+-]?[0-9]+)?	{
-	printf("(literalEnteroTK, %d)\n", (int)atof(yytext));
+	yylval.literal.tipoDelValor = REAL;
+	yylval.literal.valor.valorReal = atof(yytext);
+	return literalTK;
 }
 {literalRealDR}	{
 	char * cadena;
+	yylval.literal.tipoDelValor = REAL;
 	if ((cadena = strndup(yytext, strlen(yytext)-1)) == NULL)
 		errorEnScanner("No hay memoria para strndup() al leer %s\n", yytext);
 	else {
-		printf("(literalRealTK, %f)\n", atof(cadena));
-		free(cadena); //Para no sobrecargar la memoria
+		yylval.literal.valor.valorReal = atof(cadena);
+		free(cadena);
 	}
+	return literalTK;
 }
 {puntoYComaDR}	{
-	printf("(puntoYComaTK, %s)\n", yytext);
+	return puntoYComaTK;
 }
 {verdaderoDR}	{
-	printf("(literalBooleanoTK, verdadero)\n");
+	yylval.literal.tipoDelValor = BOOLEANO;
+	yylval.literal.valor.valorBooleano = VERDADERO;
+	return literalTK;
 }
 {comparacionDR}	{
-	printf("(comparacionTK, %s)\n", yytext);
+	return comparacionTK;
 }
-{divisionYmultiplicacionYpotenciaDR} {
-	printf("(divisionYmultiplicacionYpotenciaTK, %s) \n", yytext);
+{divisionYmultiplicacionDR} {
+	return divisionYmultiplicacionTK;
 }
 {precondicionDR} {
-	printf("(precondicionTK, %s) \n", yytext);
+	return precondicionTK;
 }
 {postcondicionDR} {
-	printf("(postcondicionTK, %s) \n", yytext);
+	return postcondicionTK;
 }
 {tipoDR} {
-	printf("(tipoTK, %s) \n", yytext);
+	return tipoTK;
 }
 {ftipoDR} {
-	printf("(ftipoTK, %s) \n", yytext);
+	return ftipoTK;
 }
 {referenciaDR} {
-	printf("(referenciaTK, %s) \n", yytext);
+	return referenciaTK;
 }
 {devolverDR} {
-	printf("(devolverTK, %s) \n", yytext);
+	return devolverTK;
 }
 {continuarDR} {
-	printf("(continuarTK, %s) \n", yytext);
+	return continuarTK;
 }
 {subrangoDR} {
-	printf("(subrangoTK, %s) \n", yytext);
+	return subrangoTK;
 }
 {yDR} {
-	printf("(yTK, %s) \n", yytext);
+	return yTK;
 }
 {oDR} {
-	printf("(oTK, %s) \n", yytext);
+	return oTK;
 }
 {hastaDR} {
-	printf("(hastaTK, %s) \n", yytext);
+	return hastaTK;
 }
 {tablaDR} {
-	printf("(tablaTK, %s) \n", yytext);
+	return tablaTK;
 }
 {varDR}	{
-	printf("(varTK, %s)\n", yytext);
+	return varTK;
 }
 {finVarDR}	{
-	printf("(finVarTK, %s)\n", yytext);
+	return finVarTK;
 }
 {whileDR}	{
-	printf("(mientrasTK, %s)\n", yytext);
+	return mientrasTK;
 }
 {doDR}	{
-	printf("(condicionMientrasTK, %s)\n", yytext);
+	return condicionMientrasTK;
 }
 {fWhileDR}	{
-	printf("(finMientrasTK, %s)\n", yytext);
+	return finMientrasTK;
 }
 {tuplaDR}	{
-	printf("(literalTuplaTK, %s)\n", yytext);
+	return literalTuplaTK;
 }
 {finTuplaDR}	{
-	printf("(finLiteralTuplaTK, %s)\n", yytext);
+	return finLiteralTuplaTK;
 }
 {algoritmoDR}	{
-	printf("(algoritmoTK, %s)\n", yytext);
+	return algoritmoTK;
 }
 {finAlgoritmoDR}	{
-	printf("(falgoritmoTK, %s)\n", yytext);
+	return falgoritmoTK;
 }
 {accionDR}	{
-	printf("(accionTK, %s)\n", yytext);
+	return accionTK;
 }
 {finAccionDR}	{
-	printf("(faccionTK, %s)\n", yytext);
+	return faccionTK;
 }
 {funcionDR}	{
-	printf("(funcionTK, %s)\n", yytext);
+	return funcionTK;
 }
 {finFuncionDR}	{
-	printf("(ffuncionTK, %s)\n", yytext);
+	return ffuncionTK;
 }
 {entradaDR}	{
-	printf("(entradaTK, %s)\n", yytext);
+	return entradaTK;
 }
 {salidaDR}	{
-	printf("(salidaTK, %s)\n", yytext);
+	return salidaTK;
 }
 {entradaSalidaDR}	{
-	printf("(entradaSalidaTK, %s)\n", yytext);
+	return entradaSalidaTK;
 }
 {asignacionDR}	{
-	printf("(asignacionTK, %s)\n", yytext);
+	return asignacionTK;
 }
 {ifDR}	{
-	printf("(condicionSiTK, %s)\n", yytext);
+	return condicionSiTK;
 }
 {finIfDR}	{
-	printf("(finCondicionSiTK, %s)\n", yytext);
+	return finCondicionSiTK;
 }
 {entoncesDR}	{
-	printf("(condicionEntoncesTK, %s)\n", yytext);
+	return condicionEntoncesTK;
 }
 {forDR}	{
-	printf("(condicionParaTK, %s)\n", yytext);
+	return condicionParaTK;
 }
 {finForDR}	{
-	printf("(finCondicionParaTK, %s)\n", yytext);
+	return finCondicionParaTK;
 }
 {elseIfDR}	{
-	printf("(condicionSiNoTK, %s)\n", yytext);
+	return condicionSiNoTK;
 }
 {enteroDR}	{
-	printf("(enteroTK, %s) \n", yytext);
+	printf("(enteroTK, %s) \n", yytext); //unir tipo
 }
 {booleanoDR}	{
-	printf("(booleanoTK, %s) \n", yytext);
+	printf("(booleanoTK, %s) \n", yytext);//unir tipo
 }
 {realDR}	{
-	printf("(realTK, %s) \n", yytext);
+	printf("(realTK, %s) \n", yytext);//unir tipo
 }
 {cadenaDR}	{
-	printf("(cadenaTK, %s) \n", yytext);
+	printf("(cadenaTK, %s) \n", yytext);//unir tipo
 }
 {caracterDR}	{
-	printf("(caracterTK, %s) \n", yytext);
+	printf("(caracterTK, %s) \n", yytext);//unir tipo
 }
 [a-z][a-zA-Z0-9]*	{
-	printf("(identificadoresTK, %s) \n", yytext);
+    yylval.cadena = strdup(yytext);
+	return identificadoresTK;
 }
 [A-Z][A-Z_]*	{
-	printf("(nombreConstanteTK, %s)\n", yytext);
+    yylval.cadena = strdup(yytext);
+	return nombreConstanteTK;
 }
 .	{ //Permite que el resto de caracteres no hagan echo
 }
@@ -327,5 +343,3 @@ int main(int argc, char *argv[]){
 
 	return 0;
 }
-
-
