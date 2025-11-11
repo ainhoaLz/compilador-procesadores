@@ -12,7 +12,9 @@
 	#include <stdio.h> //Para poder escribir en el terminal
 	#include <stdlib.h> //Para usar exit()
 	#include <strings.h> //Para trabajar con cadenas de caracteres
-	//#include "literal.h"
+	#include "nombresDeTipos.h"
+	#include "literal.h"
+	#include "parser.tab.h"
 
 	void errorEnScanner(char*, char*); //prototipo necesario para compilar
 	extern FILE *yyin;
@@ -101,7 +103,7 @@ puntoDR \.
 :	{
 	return dosPuntosTK;
 }
-{puntoTK}  {
+{puntoDR}  {
 	return puntoTK;
 }
 {comillasDR} {
