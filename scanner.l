@@ -17,7 +17,6 @@
 	#include "parser.tab.h"
 
 	void errorEnScanner(char*, char*); //prototipo necesario para compilar
-	extern FILE *yyin;
 
 %}
 
@@ -27,7 +26,7 @@ fconstDR (?i:fconst)
 literalCaracterDR	\".\"
 literalEnteroDR	[+-]?[0-9]+
 literalRealDR	{literalEnteroDR}[rR]
-puntoYComaDR	;
+puntoYcomaDR	;
 verdaderoDR	(?i:verdadero)
 comparacionDR <|<=|>|>=|<>
 sumaYrestaDR \+|\-
@@ -106,12 +105,12 @@ puntoDR \.
 {puntoDR}  {
 	return puntoTK;
 }
-{comillasDR} {
-	return comillasTK;
-}
-{comillaSimplesDR} {
-	return comillaSimpleTK;
-}
+	/*{comillasDR} {
+		return comillasTK;
+	}
+	{comillaSimplesDR} {
+		return comillaSimpleTK;
+	}*/
 "("	{
 	return aperturaParentesisTK;
 }
@@ -125,7 +124,7 @@ puntoDR \.
 	return cierreArrayTK;
 }
 "{"	{
-	return aperturComentarioTK;
+	return aperturaComentarioTK;
 }
 "}"	{
 	return cierreComentarioTK;
@@ -172,8 +171,8 @@ puntoDR \.
 	}
 	return literalTK;
 }
-{puntoYComaDR}	{
-	return puntoYComaTK;
+{puntoYcomaDR}	{
+	return puntoYcomaTK;
 }
 {verdaderoDR}	{
 	yylval.literal.tipoDelValor = BOOLEANO;
@@ -186,12 +185,12 @@ puntoDR \.
 {divisionYmultiplicacionDR} {
 	return divisionYmultiplicacionTK;
 }
-{precondicionDR} {
-	return precondicionTK;
-}
-{postcondicionDR} {
-	return postcondicionTK;
-}
+	/*{precondicionDR} {
+		return precondicionTK;
+	}
+	{postcondicionDR} {
+		return postcondicionTK;
+	}*/
 {tipoDR} {
 	return tipoTK;
 }
@@ -325,23 +324,8 @@ void errorEnScanner(char* definicionDelError, char * variable){
 	printf("\n\n\n\t%s %s \n", definicionDelError, variable);
 	exit(EXIT_FAILURE);
 }
-int main(int argc, char *argv[]){
-	if(argc > 2){
-		printf("Error. Demasiados argumentos. \n");
-		return 1;
-	}
-	if(argc == 2){
-		FILE *input = fopen(argv[1], "r");
-		if(!input){
-			printf("Error al abrir el archivo.\n");
-		}
 
-		yyin = input;
-	}
-	yylex();
-	if(yyin != stdin){
-		fclose(yyin);
-	}
 
-	return 0;
+int yywrap(){
+	return(1);
 }
