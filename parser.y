@@ -59,12 +59,14 @@
 %token finCondicionParaTK
 %token condicionSiNoTK
 %token tipoVarTK
-%token identificadoresTK
-%token nombreConstanteTK
+%token <cadena> identificadoresTK
+%token <cadena> nombreConstanteTK
 %token puntoTK
 %token <literal> literalTK
 %token verdaderoTK
 %token falsoTK
+%token precondicionTK
+%token postcondicionTK
 
 %left puntoYcomaTK
 %left yTK oTK
@@ -90,7 +92,9 @@ desc_algoritmo: algoritmoTK identificadoresTK puntoYcomaTK cabecera_alg bloque_a
 
 cabecera_alg: decl_globales decl_a_f decl_ent_sal comentario {};
 
-comentario: aperturaComentarioTK identificadoresTK cierreComentarioTK {};
+comentario: aperturaComentarioTK identificadoresTK cierreComentarioTK {}
+    | precondicionTK {}
+    |  postcondicionTK {};
 
 bloque_alg: bloque comentario {};
 
@@ -155,7 +159,7 @@ d_tipo: literalTuplaTK lista_campos finLiteralTuplaTK {}
     | identificadoresTK {}
     | expresion subrangoTK expresion {}
     | referenciaTK d_tipo {}
-    | tipoTK {};
+    | tipoVarTK {};
 
 lista_campos: identificadoresTK dosPuntosTK d_tipo puntoYcomaTK lista_campos {}
     |/*vacio*/ {};
@@ -214,7 +218,8 @@ declaracionDeConstanteV : nombreConstanteTK igualTK literalTK {};
 declaracionVariablesV: varTK listaDeclVariablesV finVarTK{};
 
 listaDeclVariablesV : declaracionDeVariablesV {}
-    | listaDeclVariablesV puntoYcomaTK listaDeclVariablesV {};
+    | listaDeclVariablesV puntoYcomaTK listaDeclVariablesV {}
+    | /*vacio*/ {};
 
 declaracionDeVariablesV: identificadoresTK dosPuntosTK tipoVarTK {};
 
