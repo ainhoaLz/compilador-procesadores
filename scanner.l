@@ -25,7 +25,7 @@
 falsoDR	(?i:falso)
 fconstDR (?i:fconst)
 literalCaracterDR	\".\"
-literalEnteroDR	[+-]?[0-9]+
+literalEnteroDR	[0-9]+
 literalRealDR	{literalEnteroDR}[rR]
 puntoYcomaDR	;
 verdaderoDR	(?i:verdadero)
@@ -156,7 +156,7 @@ puntoDR \.
 	yylval.literal.valor.valorEntero = atoi(yytext);
 	return literalTK;
 }
-[+-]?[0-9]*(\.[0-9]+)?([eE][+-]?[0-9]+)?	{
+[0-9]*(\.[0-9]+)?([eE][0-9]+)?	{
 	yylval.literal.tipoDelValor = REAL;
 	yylval.literal.valor.valorReal = atof(yytext);
 	return literalTK;
