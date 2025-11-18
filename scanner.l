@@ -1,3 +1,4 @@
+
  //Archivo: scanner.l
  //Scanner que a partir de un programa te devuelve los tokens de ese programa.
  //Autor: Leyre Leiza, Ainhoa Lara
@@ -33,8 +34,8 @@ sumaYrestaDR \+|\-
 divisionYmultiplicacionDR (?i:mod)|(?i:div)|\*
 comillasDR \"
 comillaSimplesDR \'
-precondicionDR (?i:Prec:)
-postcondicionDR (?i:Post:)
+precondicionDR \{[Pp]rec:[^}]*\}
+postcondicionDR \{[Pp]ost:[^}]*\}
 dospuntosDR \:
 tipoDR (?i:tipo)
 ftipoDR (?i:ftipo)
@@ -185,12 +186,12 @@ puntoDR \.
 {divisionYmultiplicacionDR} {
 	return divisionYmultiplicacionTK;
 }
-	/*{precondicionDR} {
-		return precondicionTK;
-	}
-	{postcondicionDR} {
-		return postcondicionTK;
-	}*/
+{precondicionDR} {
+    return precondicionTK;
+}
+{postcondicionDR} {
+    return postcondicionTK;
+}
 {tipoDR} {
 	return tipoTK;
 }
