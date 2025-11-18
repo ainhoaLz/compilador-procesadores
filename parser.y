@@ -2,9 +2,11 @@
     #include <stdio.h>
     #include "nombresDeTipos.h"
 	#include "literal.h"
+	#include "tablaDeSimbolos.h"
     int yylex(); // Usamos la funcion que se crea gracias a flex
     void yyerror(char *); // Prototipo de una funcion necesaria
     extern FILE* yyin;
+    TablaDeSimbolos tc;
     #define YYDEBUG 1
 %}
 
@@ -85,6 +87,10 @@
 	int entero;
 }
 
+%type <entero> listaDeclVariablesV
+%type <entero> declaracionVariablesV
+%type <entero> declaracionDeConstanteV
+
 %%
 
 desc_algoritmo: algoritmoTK identificadoresTK puntoYcomaTK cabecera_alg bloque_alg falgoritmoTK puntoTK {};
@@ -126,7 +132,6 @@ expresion: expresion sumaYrestaTK expresion {}
     | expresion igualTK expresion {}
     | aperturaParentesisTK expresion cierreParentesisTK {}
     | funcion_ll {};
-
 
 operando: identificadoresTK {}
     | operando puntoTK operando {}
@@ -208,20 +213,44 @@ funcion_ll: identificadoresTK aperturaParentesisTK l_ll cierreParentesisTK{};
 l_ll: expresion separadorTK l_ll {}
     | expresion {};
 
-declaracionConstantesV: constTK listaDeclConstantesV fconstTK {};
+declaracionConstantesV: constTK listaDeclConstantesV fconstTK {
+        printf("COMPILADOR: Se han añadido %d simbolos\n", $2);
+    };
 
-listaDeclConstantesV :  declaracionDeConstanteV {}
-	| listaDeclConstantesV puntoYcomaTK listaDeclConstantesV {};
+listaDeclConstantesV :  declaracionDeConstanteV {
+        $$ = 1;
+    }
+	| listaDeclConstantesV puntoYcomaTK listaDeclConstantesV {
+        $$ = $1 + $3;
+	};
 
-declaracionDeConstanteV : nombreConstanteTK igualTK literalTK {};
+declaracionDeConstanteV : nombreConstanteTK igualTK literalTK {
+        insertaSimbolo(&tc, $1, $3, 1); //verdadero
+    };
 
-declaracionVariablesV: varTK listaDeclVariablesV finVarTK{};
+declaracionVariablesV: varTK listaDeclVariablesV finVarTK{
+        printf("COMPILADOR: Se han añadido %d simbolos\n", $2);
+    };
 
-listaDeclVariablesV : declaracionDeVariablesV {}
-    | listaDeclVariablesV puntoYcomaTK listaDeclVariablesV {}
+listaDeclVariablesV : declaracionDeVariablesV {
+        $$ = 1;
+    }
+    | listaDeclVariablesV puntoYcomaTK listaDeclVariablesV {
+        $$ = $1 + $3;
+    }
     | /*vacio*/ {};
 
-declaracionDeVariablesV: lista_id dosPuntosTK tipoVarTK {};
+declaracionDeVariablesV: lista_id dosPuntosTK tipoVarTK {
+        int cont = 0;
+        for(int i = 0; i < $$; i++){
+            LiteralT t;
+            t.tipoDeValor = tipoVarTK; //hay que ponerlo en mayusculas
+            t.valor = NULL;
+            insertaSimbolo(&tc, $1[i], $3, 0); //falso
+            count++;
+        }
+        $$ = count;
+    };
 
 %%
 int main(int argc, char **argv){
@@ -233,7 +262,9 @@ int main(int argc, char **argv){
 		yyin = fopen(argv[0], "r");
 	else
 		yyin = stdin;
+	tc = nuevaTablaDeSimbolos();
 	yyparse();
+	imprimeTablaDeSimbolos(tc);
 }
 
 void yyerror(char * s){
