@@ -71,14 +71,13 @@
 %left puntoYcomaTK
 %left yTK oTK
 %left igualTK
-%left cierreArrayTK cierreComentarioTK cierreParentesisTK
+%left  cierreArrayTK cierreComentarioTK cierreParentesisTK
 %nonassoc aperturaArrayTK aperturaComentarioTK aperturaParentesisTK
 %left divisionYmultiplicacionTK
 %left sumaYrestaTK subrangoTK
 %nonassoc comparacionTK
 %left puntoTK referenciaTK
 %left negacionTK
-
 
 %union{
 	char* cadena;
@@ -113,8 +112,7 @@ declaraciones: declaracion_tipo declaraciones {}
     | declaracionVariablesV declaraciones {}
     | /*vacio*/{};
 
-expresion: funcion_ll {}
-    | expresion sumaYrestaTK expresion {}
+expresion: expresion sumaYrestaTK expresion {}
     | expresion divisionYmultiplicacionTK expresion {}
     | operando {}
     | literalTK {}
@@ -126,7 +124,8 @@ expresion: funcion_ll {}
     | falsoTK {}
     | expresion comparacionTK expresion {}
     | expresion igualTK expresion {}
-    | aperturaParentesisTK expresion cierreParentesisTK {};
+    | aperturaParentesisTK expresion cierreParentesisTK {}
+    | funcion_ll {};
 
 
 operando: identificadoresTK {}
@@ -185,7 +184,8 @@ instruccion: continuarTK {}
     | asignacion {}
     | alternativa {}
     | iteracion {}
-    | accion_ll {};
+    | accion_ll {}
+    | /*vacio*/ {};
 
 asignacion: operando asignacionTK expresion {};
 
@@ -203,7 +203,7 @@ it_cota_fija: condicionParaTK identificadoresTK asignacionTK expresion hastaTK e
 
 accion_ll: identificadoresTK aperturaParentesisTK l_ll cierreParentesisTK {};
 
-funcion_ll: identificadoresTK aperturaParentesisTK l_ll cierreParentesisTK {};
+funcion_ll: identificadoresTK aperturaParentesisTK l_ll cierreParentesisTK{};
 
 l_ll: expresion separadorTK l_ll {}
     | expresion {};
@@ -221,7 +221,7 @@ listaDeclVariablesV : declaracionDeVariablesV {}
     | listaDeclVariablesV puntoYcomaTK listaDeclVariablesV {}
     | /*vacio*/ {};
 
-declaracionDeVariablesV: identificadoresTK dosPuntosTK tipoVarTK {};
+declaracionDeVariablesV: lista_id dosPuntosTK tipoVarTK {};
 
 %%
 int main(int argc, char **argv){
