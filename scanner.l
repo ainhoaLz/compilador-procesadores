@@ -13,6 +13,7 @@
 	#include <stdio.h> //Para poder escribir en el terminal
 	#include <stdlib.h> //Para usar exit()
 	#include <strings.h> //Para trabajar con cadenas de caracteres
+	#include "listaId.h"
 	#include "nombresDeTipos.h"
 	#include "literal.h"
 	#include "parser.tab.h"
@@ -292,18 +293,23 @@ puntoDR \.
 	return condicionSiNoTK;
 }
 {enteroDR}	{
+    yylval.cadena = strdup(yytext);
 	return tipoVarTK;
 }
 {booleanoDR}	{
+    yylval.cadena = strdup(yytext);
 	return tipoVarTK;
 }
 {realDR}	{
+    yylval.cadena = strdup(yytext);
 	return tipoVarTK;
 }
 {cadenaDR}	{
+    yylval.cadena = strdup(yytext);
 	return tipoVarTK;
 }
 {caracterDR}	{
+    yylval.cadena = strdup(yytext);
 	return tipoVarTK;
 }
 [a-z][a-zA-Z0-9]*	{
