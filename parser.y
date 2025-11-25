@@ -2,7 +2,9 @@
     #include <stdio.h>
     #include "nombresDeTipos.h"
 	#include "literal.h"
+	#include "listaId.h"
 	#include "tablaDeSimbolos.h"
+
     int yylex(); // Usamos la funcion que se crea gracias a flex
     void yyerror(char *); // Prototipo de una funcion necesaria
     extern FILE* yyin;
@@ -60,7 +62,7 @@
 %token condicionParaTK
 %token finCondicionParaTK
 %token condicionSiNoTK
-%token tipoVarTK
+%token <cadena> tipoVarTK //asi se recoge que la cadena de tipo, no hace falta añadir otro archivo
 %token <cadena> identificadoresTK
 %token <cadena> nombreConstanteTK
 %token puntoTK
@@ -85,8 +87,10 @@
 	char* cadena;
 	LiteralT literal;
 	int entero;
+	ListaId paraLid;
 }
 
+%type <paraLid> lista_id
 %type <entero> listaDeclVariablesV
 %type <entero> declaracionVariablesV
 %type <entero> declaracionDeConstanteV
@@ -175,8 +179,17 @@ decl_sal: salidaTK lista_d_var{};
 lista_d_var: lista_id dosPuntosTK d_tipo puntoYcomaTK lista_d_var {}
     | /*vacio*/ {};
 
-lista_id: identificadoresTK separadorTK lista_id {}
-    | identificadoresTK {};
+lista_id: identificadoresTK separadorTK lista_id {
+        nuevaListaCadenas(); //$$ hace referencia a lista_id (lo que esta antes de los :)
+        copiarLista(&($$), &($3));
+        meteId(&($$), $1);
+    }
+    | identificadoresTK {
+        nuevaListaCadenas();
+        printf("COMPILADOR: Se ha creado la lista\n");
+        meteId(&($$), $1);
+        printf("COMPILADOR: no se llega a meter el id\n");
+    };
 
 decl_ent_sal: decl_ent {}
     | decl_ent decl_sal {}
@@ -214,18 +227,18 @@ l_ll: expresion separadorTK l_ll {}
     | expresion {};
 
 declaracionConstantesV: constTK listaDeclConstantesV fconstTK {
-        printf("COMPILADOR: Se han añadido %d simbolos\n", $2);
+        //printf("COMPILADOR: Se han añadido %d simbolos\n", $2);
     };
 
 listaDeclConstantesV :  declaracionDeConstanteV {
-        $$ = 1;
+       // $$ = 1;
     }
 	| listaDeclConstantesV puntoYcomaTK listaDeclConstantesV {
-        $$ = $1 + $3;
+       // $$ = $1 + $3;
 	};
 
 declaracionDeConstanteV : nombreConstanteTK igualTK literalTK {
-        insertaSimbolo(&tc, $1, $3, 1); //verdadero
+        //insertaSimbolo(&tc, $1, $3, 1); //verdadero
     };
 
 declaracionVariablesV: varTK listaDeclVariablesV finVarTK{
@@ -241,15 +254,12 @@ listaDeclVariablesV : declaracionDeVariablesV {
     | /*vacio*/ {};
 
 declaracionDeVariablesV: lista_id dosPuntosTK tipoVarTK {
-        int cont = 0;
-        for(int i = 0; i < $$; i++){
-            LiteralT t;
-            t.tipoDeValor = tipoVarTK; //hay que ponerlo en mayusculas
-            t.valor = NULL;
-            insertaSimbolo(&tc, $1[i], $3, 0); //falso
-            count++;
+        CeldaId c;
+        while(!esNula(&($1))){
+            c = *$1;
+            insertaSimboloSinLiteral(&tc, c.nombre, $3); //no se le pasa el tipoVar si no el literal, el que tiene el valor y el tipo
+            borrar(&($1));
         }
-        $$ = count;
     };
 
 %%
