@@ -44,7 +44,7 @@ ListaId copiarLista(ListaId * nueva, ListaId * antigua) {
 }
 
 bool esNula(ListaId * ptc){
-    return (ptc == NULL);
+    return (*ptc == NULL);
 }
 
 void borrar(ListaId * ptc) {
