@@ -180,12 +180,11 @@ lista_d_var: lista_id dosPuntosTK d_tipo puntoYcomaTK lista_d_var {}
     | /*vacio*/ {};
 
 lista_id: identificadoresTK separadorTK lista_id {
-        nuevaListaCadenas(); //$$ hace referencia a lista_id (lo que esta antes de los :)
-        copiarLista(&($$), &($3));
+        $$ = copiarLista(NULL, &($3));
         meteId(&($$), $1);
     }
     | identificadoresTK {
-        nuevaListaCadenas();
+        $$ = nuevaListaCadenas();
         printf("COMPILADOR: Se ha creado la lista\n");
         meteId(&($$), $1);
         printf("COMPILADOR: no se llega a meter el id\n");
