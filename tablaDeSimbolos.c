@@ -3,7 +3,6 @@
 #include <string.h>
 #include "tablaDeSimbolos.h"
 
-
 TablaDeSimbolos nuevaTablaDeSimbolos() {
     return (Celda *) NULL;
 }
@@ -57,4 +56,15 @@ bool actualizarValor(TablaDeSimbolos *ptc, char *nombre, LiteralT nuevoValor){
     c->valor = nuevoValor;
     c->valor.tieneValor = true;
     return true;
+}
+
+LiteralT* buscarSimbolo(TablaDeSimbolos * ptc, char *nombre) {
+    Celda *c = *ptc;
+    while (c != NULL && strcmp(c->nombre, nombre) != 0) {
+        c = c->sig;
+    }
+    if(strcmp(c->nombre, nombre) == 0){
+        return &(c->valor);
+    }
+    return NULL;
 }
