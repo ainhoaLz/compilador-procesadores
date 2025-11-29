@@ -2,6 +2,7 @@
 #define FFF_LITERAL_H
 
 #include "nombresDeTipos.h"
+#include <stdbool.h>
 
 typedef enum valorBooleanoT {
 	VERDADERO,
@@ -15,11 +16,12 @@ typedef union valorLiteralT{
 	int valorEntero;
 	float valorReal;
 } ValorLiteralT;
-	
+
 typedef struct literalT {
 	NombreDeTipoT tipoDelValor;
+    bool tieneValor;
 	ValorLiteralT valor;
-} LiteralT;	
+} LiteralT;
 
 LiteralT nuevoLiteralBooleano(ValorBooleanoT);
 LiteralT nuevoLiteralCadena(char *);
@@ -27,5 +29,6 @@ LiteralT nuevoLiteralCaracter(char);
 LiteralT nuevoLiteralEntero(int);
 LiteralT nuevoLiteralReal(float);
 void escribeLiteral(LiteralT);
+LiteralT nuevoLiteralSinValor(NombreDeTipoT tipo);
 
 #endif
