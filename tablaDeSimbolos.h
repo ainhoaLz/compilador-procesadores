@@ -14,7 +14,7 @@ typedef Celda * TablaDeSimbolos;
 
 TablaDeSimbolos nuevaTablaDeSimbolos(void);
 bool insertaSimbolo(TablaDeSimbolos *, char *, LiteralT);
-bool insertaSimboloSinLiteral(TablaDeSimbolos *, char *, char *);
 void imprimeTablaDeSimbolos(TablaDeSimbolos);
+bool actualizarValor(TablaDeSimbolos *ptc, char *nombre, LiteralT nuevoValor);
 
 #endif
