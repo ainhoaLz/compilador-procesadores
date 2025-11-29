@@ -1,3 +1,4 @@
+
 %{
     #include <stdio.h>
     #include "nombresDeTipos.h"
@@ -62,7 +63,7 @@
 %token condicionParaTK
 %token finCondicionParaTK
 %token condicionSiNoTK
-%token <cadena> tipoVarTK //asi se recoge que la cadena de tipo, no hace falta añadir otro archivo
+%token <tipo> tipoVarTK //asi se recoge que la cadena de tipo, no hace falta añadir otro archivo
 %token <cadena> identificadoresTK
 %token <cadena> nombreConstanteTK
 %token puntoTK
@@ -88,6 +89,7 @@
 	LiteralT literal;
 	int entero;
 	ListaId paraLid;
+	NombreDeTipoT tipo;
 }
 
 %type <paraLid> lista_id
@@ -256,7 +258,8 @@ declaracionDeVariablesV: lista_id dosPuntosTK tipoVarTK {
         CeldaId c;
         while(!esNula(&($1))){
             c = *$1;
-            insertaSimboloSinLiteral(&tc, c.nombre, $3); //no se le pasa el tipoVar si no el literal, el que tiene el valor y el tipo
+            LiteralT aux = nuevoLiteralSinValor($3);
+            insertaSimbolo(&tc, c.nombre, aux); //no se le pasa el tipoVar si no el literal, el que tiene el valor y el tipo
             borrar(&($1));
         }
     };
