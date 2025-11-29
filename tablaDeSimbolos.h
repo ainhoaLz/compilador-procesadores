@@ -16,5 +16,6 @@ TablaDeSimbolos nuevaTablaDeSimbolos(void);
 bool insertaSimbolo(TablaDeSimbolos *, char *, LiteralT);
 void imprimeTablaDeSimbolos(TablaDeSimbolos);
 bool actualizarValor(TablaDeSimbolos *ptc, char *nombre, LiteralT nuevoValor);
+LiteralT* buscarSimbolo(TablaDeSimbolos *ptc, char *nombre);
 
 #endif
