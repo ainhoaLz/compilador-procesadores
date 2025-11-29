@@ -1,15 +1,19 @@
 
 %{
     #include <stdio.h>
+    #include <string.h>
     #include "nombresDeTipos.h"
 	#include "literal.h"
 	#include "listaId.h"
 	#include "tablaDeSimbolos.h"
+	#include "tablaDeCuadruplas.h"
 
     int yylex(); // Usamos la funcion que se crea gracias a flex
     void yyerror(char *); // Prototipo de una funcion necesaria
     extern FILE* yyin;
-    TablaDeSimbolos tc;
+    TablaDeSimbolos ts;
+    TablaCuadruplas tc;
+    int tempCont;
     #define YYDEBUG 1
 %}
 
@@ -96,6 +100,8 @@
 %type <entero> listaDeclVariablesV
 %type <entero> declaracionVariablesV
 %type <entero> declaracionDeConstanteV
+%type <literal> expresion
+%type <literal> operando
 
 %%
 
@@ -124,10 +130,19 @@ declaraciones: declaracion_tipo declaraciones {}
     | declaracionVariablesV declaraciones {}
     | /*vacio*/{};
 
-expresion: expresion sumaYrestaTK expresion {}
+expresion: expresion sumaYrestaTK expresion {
+        char temp[20];
+        sprintf(temp, "t%d", tempCont++);
+        agregarCuadrupla(&tc, nuevaCuadrupla("+/-", &($1), &($3), strdup(temp))); //se comprueba aqui que los tipos son iguales o eso es de ejecucion??
+        $$ = nuevoLiteralCadena(temp);
+    }
     | expresion divisionYmultiplicacionTK expresion {}
-    | operando {}
-    | literalTK {}
+    | operando {
+        $$ = $1;
+    }
+    | literalTK {
+        $$ = $1;
+    }
     | sumaYrestaTK expresion {}
     | expresion yTK expresion {}
     | expresion oTK expresion {}
@@ -139,7 +154,14 @@ expresion: expresion sumaYrestaTK expresion {}
     | aperturaParentesisTK expresion cierreParentesisTK {}
     | funcion_ll {};
 
-operando: identificadoresTK {}
+operando: identificadoresTK {
+        LiteralT* lit = buscarSimbolo(&ts, $1);
+        if(lit == NULL){
+            printf("ERROR: el identificador no se encuentra en la tabla de simbolo\n");
+        }else{
+            $$ = *lit;
+        }
+    }
     | operando puntoTK operando {}
     | operando aperturaArrayTK expresion cierreArrayTK {}
     | operando referenciaTK {};
@@ -206,7 +228,9 @@ instruccion: continuarTK {}
     | accion_ll {}
     | /*vacio*/ {};
 
-asignacion: operando asignacionTK expresion {};
+asignacion: operando asignacionTK expresion {
+    //aqui asignamos los temporales generados en las expresiones al valor que sea necesario, hay que cambiar res de la tabla de cuadruplas a literal
+};
 
 alternativa: condicionSiTK expresion condicionEntoncesTK instrucciones lista_opciones finCondicionSiTK {};
 
@@ -239,7 +263,7 @@ listaDeclConstantesV :  declaracionDeConstanteV {
 	};
 
 declaracionDeConstanteV : nombreConstanteTK igualTK literalTK {
-        //insertaSimbolo(&tc, $1, $3, 1); //verdadero
+        //insertaSimbolo(&ts, $1, $3, 1); //verdadero
     };
 
 declaracionVariablesV: varTK listaDeclVariablesV finVarTK{
@@ -259,7 +283,7 @@ declaracionDeVariablesV: lista_id dosPuntosTK tipoVarTK {
         while(!esNula(&($1))){
             c = *$1;
             LiteralT aux = nuevoLiteralSinValor($3);
-            insertaSimbolo(&tc, c.nombre, aux); //no se le pasa el tipoVar si no el literal, el que tiene el valor y el tipo
+            insertaSimbolo(&ts, c.nombre, aux); //no se le pasa el tipoVar si no el literal, el que tiene el valor y el tipo
             borrar(&($1));
         }
     };
@@ -274,9 +298,12 @@ int main(int argc, char **argv){
 		yyin = fopen(argv[0], "r");
 	else
 		yyin = stdin;
-	tc = nuevaTablaDeSimbolos();
+	ts = nuevaTablaDeSimbolos();
+	tc = nuevaTablaDeCuadruplas();
+	tempCont = 0;
 	yyparse();
-	imprimeTablaDeSimbolos(tc);
+	imprimeTablaDeSimbolos(ts);
+	imprimeCuadruplas(tc);
 }
 
 void yyerror(char * s){
