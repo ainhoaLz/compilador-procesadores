@@ -293,23 +293,23 @@ puntoDR \.
 	return condicionSiNoTK;
 }
 {enteroDR}	{
-    yylval.cadena = strdup(yytext);
+    yylval.tipo = ENTERO;
 	return tipoVarTK;
 }
 {booleanoDR}	{
-    yylval.cadena = strdup(yytext);
+    yylval.tipo = BOOLEANO;
 	return tipoVarTK;
 }
 {realDR}	{
-    yylval.cadena = strdup(yytext);
+    yylval.tipo = REAL;
 	return tipoVarTK;
 }
 {cadenaDR}	{
-    yylval.cadena = strdup(yytext);
+    yylval.tipo = CADENA;
 	return tipoVarTK;
 }
 {caracterDR}	{
-    yylval.cadena = strdup(yytext);
+    yylval.tipo = CARACTER;
 	return tipoVarTK;
 }
 [a-z][a-zA-Z0-9]*	{
