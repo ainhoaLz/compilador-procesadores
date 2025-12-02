@@ -3,24 +3,20 @@
 
 #include <stdbool.h>
 #include "literal.h"
-
-// typedef struct Operando {
-//     LiteralT tipo;
-//
-// }
+#include "tablaDeSimbolos.h"
 
 typedef struct Cuadrupla {
     char *op;
-    LiteralT *arg1;
-    LiteralT *arg2;
-    char *res;
+    infoVariable arg1;
+    infoVariable arg2;
+    infoVariable res;
     struct Cuadrupla *sig;
 } Cuadrupla;
 
 typedef Cuadrupla* TablaCuadruplas;
 
 TablaCuadruplas nuevaTablaDeCuadruplas(void);
-Cuadrupla* nuevaCuadrupla(char *op, LiteralT *arg1, LiteralT *arg2, char *res);
+Cuadrupla* nuevaCuadrupla(char *op, infoVariable arg1, infoVariable arg2, infoVariable res);
 void agregarCuadrupla(TablaCuadruplas *l, Cuadrupla *c);
 void imprimeCuadruplas(TablaCuadruplas l);
 
