@@ -10,7 +10,7 @@ TablaDeSimbolos nuevaTablaDeSimbolos() {
 bool insertaSimbolo(TablaDeSimbolos * ptc, char * pnombre, LiteralT v){
     Celda * c;
     c = *ptc;
-    while (c != NULL && strcmp(pnombre, c->nombre))
+    while (c != NULL && strcmp(pnombre, c->nombre.name))
         c = c->sig;
     if (c != NULL)
         printf("Ya existe una constante llamada %s\n", pnombre);
@@ -19,8 +19,8 @@ bool insertaSimbolo(TablaDeSimbolos * ptc, char * pnombre, LiteralT v){
             printf("No hay memoria para una celda de la tabla de simbolos");
             exit(1);
         }
-        c->nombre = pnombre;
-        c->valor = v;
+        c->nombre.name = pnombre;
+        c->nombre.tipo = v.tipoDelValor;
         c->sig = *ptc;
         *ptc = c;
     }
@@ -32,39 +32,43 @@ void imprimeTablaDeSimbolos(TablaDeSimbolos tc){
         printf("La tabla de simbolos está vacía\n");
     else {
         printf("El contenido de la tabla de simbolos es.\n");
-        printf("Nombre\t\tTipo\t\tValor\n");
+        printf("Nombre\tTipo\n");
         while (aux != NULL){
-            printf("%s\t\t", aux->nombre);
-            escribeLiteral(aux->valor);
+            printf("%s\t\t", aux->nombre.name);
+            escribeTipo(aux->nombre);
             aux = aux ->sig;
+            printf("\n");
         }
     }
 }
 
-bool actualizarValor(TablaDeSimbolos *ptc, char *nombre, LiteralT nuevoValor){
-    Celda *c = *ptc;
-
-    while (c != NULL && strcmp(c->nombre, nombre) != 0){
-        c = c->sig;
+void escribeTipo(infoVariable l){
+    switch (l.tipo) {
+        case BOOLEANO:
+            printf("Booleano\t");
+            break;
+        case CADENA:
+            printf("Cadena\t");
+            break;
+        case CARACTER:
+            printf("Caracter\t");
+            break;
+        case ENTERO:
+            printf("Entero\t");
+            break;
+        case REAL:
+            printf("Real\t");
+            break;
     }
-
-    if (c == NULL) {
-        printf("Error: no existe la variable %s\n", nombre);
-        return false;
-    }
-
-    c->valor = nuevoValor;
-    c->valor.tieneValor = true;
-    return true;
 }
 
-LiteralT* buscarSimbolo(TablaDeSimbolos * ptc, char *nombre) {
+infoVariable* buscarSimbolo(TablaDeSimbolos * ptc, char *nombre) {
     Celda *c = *ptc;
-    while (c != NULL && strcmp(c->nombre, nombre) != 0) {
+    while (c != NULL && strcmp(c->nombre.name, nombre) != 0) {
         c = c->sig;
     }
-    if(strcmp(c->nombre, nombre) == 0){
-        return &(c->valor);
+    if(strcmp(c->nombre.name, nombre) == 0){
+        return &(c->nombre);
     }
     return NULL;
 }
