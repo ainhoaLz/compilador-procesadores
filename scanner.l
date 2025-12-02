@@ -14,6 +14,7 @@
 	#include <stdlib.h> //Para usar exit()
 	#include <strings.h> //Para trabajar con cadenas de caracteres
 	#include "listaId.h"
+	#include "tablaDeSimbolos.h"
 	#include "nombresDeTipos.h"
 	#include "literal.h"
 	#include "parser.tab.h"
@@ -132,6 +133,7 @@ puntoDR \.
 	return cierreComentarioTK;
 }
 {sumaYrestaDR} {
+    yylval.cadena = strdup(yytext);
 	return sumaYrestaTK;
 }
 {negacionDR} {
@@ -185,6 +187,7 @@ puntoDR \.
 	return comparacionTK;
 }
 {divisionYmultiplicacionDR} {
+    yylval.cadena = strdup(yytext);
 	return divisionYmultiplicacionTK;
 }
 {precondicionDR} {
