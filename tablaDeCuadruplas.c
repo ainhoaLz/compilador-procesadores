@@ -29,10 +29,16 @@ void agregarCuadrupla(TablaCuadruplas *l, Cuadrupla *c){
 
 void imprimeCuadruplas(TablaCuadruplas l){
     printf("El contenido de la tabla de cuadruplas es:\n");
-    printf("Op\tArg1\tArg2\tRes\n");
+    printf("Op\t\tArg1\t\tArg2\t\tRes\n");
     while(l != NULL){
-        printf("%s\t",l->op);
+        printf("%s\t\t",l->op);
+        if(l->arg1.name != NULL){
+            printf("%s/",l->arg1.name);
+        }
         escribeTipo(l->arg1);
+        if(l->arg2.name != NULL){
+            printf("%s/",l->arg2.name);
+        }
         escribeTipo(l->arg2);
         printf("%s/",l->res.name);
         escribeTipo(l->res);
@@ -40,26 +46,6 @@ void imprimeCuadruplas(TablaCuadruplas l){
         l = l->sig;
     }
 }
-/*
-void escribeNombreTipo(NombreDeTipoT l){
-    switch (l) {
-        case BOOLEANO:
-            printf("Booleano\t");
-            break;
-        case CADENA:
-            printf("Cadena\t");
-            break;
-        case CARACTER:
-            printf("Caracter\t");
-            break;
-        case ENTERO:
-            printf("Entero\t");
-            break;
-        case REAL:
-            printf("Real\t");
-            break;
-    }
-}*/
 
 void asignarCuadrupla(){
     //guardar la respuesta como solo guardamos dos operandos a lo mejor el

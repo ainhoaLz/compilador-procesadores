@@ -33,7 +33,7 @@
 %token deTK
 %token puntoYcomaTK
 %token comparacionTK
-%token divisionYmultiplicacionTK
+%token <cadena> divisionYmultiplicacionTK
 %token tipoTK
 %token ftipoTK
 %token referenciaTK
@@ -60,7 +60,7 @@
 %token entradaTK
 %token salidaTK
 %token entradaSalidaTK
-%token asignacionTK
+%token <cadena> asignacionTK
 %token condicionSiTK
 %token finCondicionSiTK
 %token condicionEntoncesTK
@@ -77,16 +77,16 @@
 %token precondicionTK
 %token postcondicionTK
 
-%left puntoYcomaTK
-%left yTK oTK
-%left igualTK
-%left  cierreArrayTK cierreComentarioTK cierreParentesisTK
-%nonassoc aperturaArrayTK aperturaComentarioTK aperturaParentesisTK
-%left divisionYmultiplicacionTK
-%left sumaYrestaTK subrangoTK
-%nonassoc comparacionTK
-%left puntoTK referenciaTK
 %left negacionTK
+%left puntoTK referenciaTK
+%nonassoc comparacionTK
+%left sumaYrestaTK subrangoTK
+%left divisionYmultiplicacionTK
+%nonassoc aperturaArrayTK aperturaComentarioTK aperturaParentesisTK
+%left  cierreArrayTK cierreComentarioTK cierreParentesisTK
+%left igualTK
+%left yTK oTK
+%left puntoYcomaTK
 
 %union{
 	char* cadena;
@@ -134,28 +134,34 @@ declaraciones: declaracion_tipo declaraciones {}
 expresion: expresion sumaYrestaTK expresion {
          infoVariable temp;
          if($1.tipo == ENTERO && $3.tipo == ENTERO){
-             sprintf(temp.name, "t%d", tempCont++);
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
              temp.tipo = ENTERO;
              agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
              $$ = temp;
          }else if($1.tipo == ENTERO && $3.tipo == REAL){
              char name[10];
              sprintf(name, "t%d", tempCont++);
-             temp.name = name;
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
              temp.tipo = REAL;
              agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
              $$ = temp;
          }else if($1.tipo == REAL && $3.tipo == ENTERO){
-             //sprintf(temp.name, "t%d", tempCont++); esto da fallo mirar como hay que ponerlo
              char name[10];
              sprintf(name, "t%d", tempCont++);
-             temp.name = name;
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
              temp.tipo = REAL;
-             printf("inicializa temp\n");
              agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
              $$ = temp;
          }else if($1.tipo == REAL && $3.tipo == REAL){
-             sprintf(temp.name, "t%d", tempCont++);
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
              temp.tipo = REAL;
              agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
              $$ = temp;
@@ -163,13 +169,50 @@ expresion: expresion sumaYrestaTK expresion {
              printf("ERROR las variables no son del mismo tipo\n");
          }
     }
-    | expresion divisionYmultiplicacionTK expresion {}
+    | expresion divisionYmultiplicacionTK expresion {
+        infoVariable temp;
+         if($1.tipo == ENTERO && $3.tipo == ENTERO){
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
+             temp.tipo = ENTERO;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else if($1.tipo == ENTERO && $3.tipo == REAL){
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
+             temp.tipo = REAL;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else if($1.tipo == REAL && $3.tipo == ENTERO){
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
+             temp.tipo = REAL;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else if($1.tipo == REAL && $3.tipo == REAL){
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = malloc(strlen(name) + 1);
+             strcpy(temp.name, name);
+             temp.tipo = REAL;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else{
+             printf("ERROR las variables no son del mismo tipo\n");
+         }
+    }
     | operando {
         $$ = $1;
     }
     | literalTK {
         infoVariable aux;
-        aux.name = "";
+        aux.name = NULL;
         aux.tipo = $1.tipoDelValor;
         $$ = aux;
     }
@@ -181,7 +224,9 @@ expresion: expresion sumaYrestaTK expresion {
     | falsoTK {}
     | expresion comparacionTK expresion {}
     | expresion igualTK expresion {}
-    | aperturaParentesisTK expresion cierreParentesisTK {}
+    | aperturaParentesisTK expresion cierreParentesisTK {
+        $$ = $2;
+    }
     | funcion_ll {};
 
 operando: identificadoresTK {
@@ -259,8 +304,12 @@ instruccion: continuarTK {}
     | /*vacio*/ {};
 
 asignacion: operando asignacionTK expresion {
-    //aqui asignamos los temporales generados en las expresiones al valor que sea necesario
-    //agregarCuadrupla(&tc, asignarCuadrupla($1, $3));
+    infoVariable empty; 
+    memset(&empty, 0, sizeof(infoVariable));  // arg2 not used
+    empty.tipo = NULO;
+    empty.name = NULL;
+    Cuadrupla *asig = nuevaCuadrupla($2, $3, empty, $1);
+    agregarCuadrupla(&tc, asig);
 };
 
 alternativa: condicionSiTK expresion condicionEntoncesTK instrucciones lista_opciones finCondicionSiTK {};

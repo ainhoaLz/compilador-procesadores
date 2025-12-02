@@ -275,6 +275,7 @@ puntoDR \.
 	return entradaSalidaTK;
 }
 {asignacionDR}	{
+    yylval.cadena = strdup(yytext);
 	return asignacionTK;
 }
 {ifDR}	{

@@ -32,7 +32,7 @@ void imprimeTablaDeSimbolos(TablaDeSimbolos tc){
         printf("La tabla de simbolos está vacía\n");
     else {
         printf("El contenido de la tabla de simbolos es.\n");
-        printf("Nombre\tTipo\n");
+        printf("Nombre\t\tTipo\n");
         while (aux != NULL){
             printf("%s\t\t", aux->nombre.name);
             escribeTipo(aux->nombre);
@@ -45,20 +45,22 @@ void imprimeTablaDeSimbolos(TablaDeSimbolos tc){
 void escribeTipo(infoVariable l){
     switch (l.tipo) {
         case BOOLEANO:
-            printf("Booleano\t");
+            printf("Booleano\t\t");
             break;
         case CADENA:
-            printf("Cadena\t");
+            printf("Cadena\t\t");
             break;
         case CARACTER:
-            printf("Caracter\t");
+            printf("Caracter\t\t");
             break;
         case ENTERO:
-            printf("Entero\t");
+            printf("Entero\t\t");
             break;
         case REAL:
-            printf("Real\t");
+            printf("Real\t\t");
             break;
+        case NULO:
+            printf("\t\t");
     }
 }
 
