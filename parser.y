@@ -28,7 +28,7 @@
 %token cierreArrayTK
 %token aperturaComentarioTK
 %token cierreComentarioTK
-%token sumaYrestaTK
+%token <cadena> sumaYrestaTK
 %token negacionTK
 %token deTK
 %token puntoYcomaTK
@@ -94,14 +94,15 @@
 	int entero;
 	ListaId paraLid;
 	NombreDeTipoT tipo;
+	infoVariable info;
 }
 
 %type <paraLid> lista_id
 %type <entero> listaDeclVariablesV
 %type <entero> declaracionVariablesV
 %type <entero> declaracionDeConstanteV
-%type <literal> expresion
-%type <literal> operando
+%type <info> expresion
+%type <info> operando
 
 %%
 
@@ -131,17 +132,46 @@ declaraciones: declaracion_tipo declaraciones {}
     | /*vacio*/{};
 
 expresion: expresion sumaYrestaTK expresion {
-        char temp[20];
-        sprintf(temp, "t%d", tempCont++);
-        agregarCuadrupla(&tc, nuevaCuadrupla("+/-", &($1), &($3), strdup(temp))); //se comprueba aqui que los tipos son iguales o eso es de ejecucion??
-        $$ = nuevoLiteralCadena(temp);
+         infoVariable temp;
+         if($1.tipo == ENTERO && $3.tipo == ENTERO){
+             sprintf(temp.name, "t%d", tempCont++);
+             temp.tipo = ENTERO;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else if($1.tipo == ENTERO && $3.tipo == REAL){
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = name;
+             temp.tipo = REAL;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else if($1.tipo == REAL && $3.tipo == ENTERO){
+             //sprintf(temp.name, "t%d", tempCont++); esto da fallo mirar como hay que ponerlo
+             char name[10];
+             sprintf(name, "t%d", tempCont++);
+             temp.name = name;
+             temp.tipo = REAL;
+             printf("inicializa temp\n");
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else if($1.tipo == REAL && $3.tipo == REAL){
+             sprintf(temp.name, "t%d", tempCont++);
+             temp.tipo = REAL;
+             agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+             $$ = temp;
+         }else{
+             printf("ERROR las variables no son del mismo tipo\n");
+         }
     }
     | expresion divisionYmultiplicacionTK expresion {}
     | operando {
         $$ = $1;
     }
     | literalTK {
-        $$ = $1;
+        infoVariable aux;
+        aux.name = "";
+        aux.tipo = $1.tipoDelValor;
+        $$ = aux;
     }
     | sumaYrestaTK expresion {}
     | expresion yTK expresion {}
@@ -155,12 +185,12 @@ expresion: expresion sumaYrestaTK expresion {
     | funcion_ll {};
 
 operando: identificadoresTK {
-        LiteralT* lit = buscarSimbolo(&ts, $1);
-        if(lit == NULL){
-            printf("ERROR: el identificador no se encuentra en la tabla de simbolo\n");
-        }else{
-            $$ = *lit;
-        }
+         infoVariable* lit = buscarSimbolo(&ts, $1);
+         if(lit == NULL){
+             printf("ERROR: el identificador no se encuentra en la tabla de simbolo\n");
+         }else{
+             $$ = *lit;
+         }
     }
     | operando puntoTK operando {}
     | operando aperturaArrayTK expresion cierreArrayTK {}
@@ -229,7 +259,8 @@ instruccion: continuarTK {}
     | /*vacio*/ {};
 
 asignacion: operando asignacionTK expresion {
-    //aqui asignamos los temporales generados en las expresiones al valor que sea necesario, hay que cambiar res de la tabla de cuadruplas a literal
+    //aqui asignamos los temporales generados en las expresiones al valor que sea necesario
+    //agregarCuadrupla(&tc, asignarCuadrupla($1, $3));
 };
 
 alternativa: condicionSiTK expresion condicionEntoncesTK instrucciones lista_opciones finCondicionSiTK {};
