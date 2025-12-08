@@ -3,11 +3,14 @@
 
 #include <stdbool.h>
 #include "literal.h"
+#include "listaEnteros.h"
 
 
 typedef struct infoVariable {
     char * name;
     NombreDeTipoT tipo;
+    ListaEnteros listaTrue;
+    ListaEnteros listaFalse;
 } infoVariable;
 
 typedef struct celda {

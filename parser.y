@@ -208,7 +208,10 @@ expresion: expresion sumaYrestaTK expresion {
          }
     }
     | operando {
-        $$ = $1;
+        $$.name = $1.name;
+        $$.tipo = $1.tipo;
+        $$.listaTrue = $1.listaTrue;
+        $$.listaFalse = $1.listaFalse; 
     }
     | literalTK {
         infoVariable aux;
@@ -217,17 +220,48 @@ expresion: expresion sumaYrestaTK expresion {
         $$ = aux;
     }
     | sumaYrestaTK expresion {}
-    | expresion yTK expresion {}
-    | expresion oTK expresion {}
-    | negacionTK expresion {}
-    | verdaderoTK {}
-    | falsoTK {}
+    | expresion yTK M expresion {
+        backpatch(&tc, $1.listaTrue, $3);
+        $$.listaTrue = $4.listaTrue;
+        $$.listaFalse = juntarListas($1.listaFalse, $4.listaFalse);
+        $$.tipo = BOOLEANO;
+    }
+    | expresion oTK M expresion {
+        backpatch(&tc, $1.listaFalse, $3);
+        $$.listaTrue = juntarListas($1.listaTrue, $4.listaTrue);
+        $$.listaFalse = $4.listaFalse;
+
+    }
+    | negacionTK expresion {
+        $$.listaTrue = $2.listaFalse;
+        $$.listaFalse = $2.listaTrue;
+        $$.tipo = BOOLEANO;
+    }
+    | verdaderoTK {
+        $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+        agregarCuadrupla(&tc, nuevaCuadrupla("goto", NULL, NULL, NULL));
+        $$.listaFalse = NULL;
+        $$.tipo = BOOLEANO;
+    }
+    | falsoTK {
+        $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla(&tc));
+        agregarCuadrupla(&tc, nuevaCuadrupla("goto", NULL, NULL, NULL));
+        $$.listaTrue = NULL;
+        $$.tipo = BOOLEANO;
+    }
     | expresion comparacionTK expresion {}
     | expresion igualTK expresion {}
     | aperturaParentesisTK expresion cierreParentesisTK {
-        $$ = $2;
+        $$.name = $2.name;
+        $$.tipo = $2.tipo;
+        $$.listaTrue = $2.listaTrue;
+        $$.listaFalse = $2.listaFalse;
     }
     | funcion_ll {};
+
+M: {
+    $$ = siguienteCuadrupla(&tc);
+} 
 
 operando: identificadoresTK {
          infoVariable* lit = buscarSimbolo(&ts, $1);

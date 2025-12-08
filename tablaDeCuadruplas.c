@@ -50,3 +50,26 @@ void imprimeCuadruplas(TablaCuadruplas l){
 void asignarCuadrupla(){
     //guardar la respuesta como solo guardamos dos operandos a lo mejor el
 }
+
+int siguienteCuadrupla(TablaCuadruplas *tc){
+    return tc->sig;
+} 
+
+void backpatch(TablaCuadruplas *tc, ListaEnteros lista, int destino){
+    char stringDestino[30];
+    sprintf(stringDestino, "%d", destino); 
+    ListaEnteros actual = lista;
+    while(actual!=NULL){
+        int indice = actual->valor;
+        Cuadrupla *c = tc;
+        int pos = 0;
+        while (c != NULL && pos<indice){
+            c = c->sig;
+            pos++;
+        } 
+        if(c!= NULL){
+            c->res.name = strdup(stringDestino);
+        } 
+    } 
+    actual = actual->sig;
+} 

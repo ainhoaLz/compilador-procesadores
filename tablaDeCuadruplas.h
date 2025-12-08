@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "literal.h"
 #include "tablaDeSimbolos.h"
+#include "listaEnteros.h" 
+
 
 typedef struct Cuadrupla {
     char *op;
@@ -19,5 +21,7 @@ TablaCuadruplas nuevaTablaDeCuadruplas(void);
 Cuadrupla* nuevaCuadrupla(char *op, infoVariable arg1, infoVariable arg2, infoVariable res);
 void agregarCuadrupla(TablaCuadruplas *l, Cuadrupla *c);
 void imprimeCuadruplas(TablaCuadruplas l);
+int siguienteCuadrupla(TablaCuadruplas *tc);
+void backpatch(TablaCuadruplas *tc, ListaEnteros lista, int destino);
 
 #endif
