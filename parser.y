@@ -7,6 +7,7 @@
 	#include "listaId.h"
 	#include "tablaDeSimbolos.h"
 	#include "tablaDeCuadruplas.h"
+	#include "listaEnteros.h"
 
     int yylex(); // Usamos la funcion que se crea gracias a flex
     void yyerror(char *); // Prototipo de una funcion necesaria
@@ -103,6 +104,7 @@
 %type <entero> declaracionDeConstanteV
 %type <info> expresion
 %type <info> operando
+%type <entero> M
 
 %%
 
@@ -239,13 +241,11 @@ expresion: expresion sumaYrestaTK expresion {
     }
     | verdaderoTK {
         $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
-        agregarCuadrupla(&tc, nuevaCuadrupla("goto", NULL, NULL, NULL));
         $$.listaFalse = NULL;
         $$.tipo = BOOLEANO;
     }
     | falsoTK {
         $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla(&tc));
-        agregarCuadrupla(&tc, nuevaCuadrupla("goto", NULL, NULL, NULL));
         $$.listaTrue = NULL;
         $$.tipo = BOOLEANO;
     }

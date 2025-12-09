@@ -47,12 +47,15 @@ void imprimeCuadruplas(TablaCuadruplas l){
     }
 }
 
-void asignarCuadrupla(){
-    //guardar la respuesta como solo guardamos dos operandos a lo mejor el
-}
-
 int siguienteCuadrupla(TablaCuadruplas *tc){
-    return tc->sig;
+    int cont = 0;
+    Cuadrupla *aux = *tc;
+
+    while(aux != NULL){
+        cont++;
+        aux = aux->sig;
+    }
+    return cont;
 } 
 
 void backpatch(TablaCuadruplas *tc, ListaEnteros lista, int destino){
@@ -61,7 +64,7 @@ void backpatch(TablaCuadruplas *tc, ListaEnteros lista, int destino){
     ListaEnteros actual = lista;
     while(actual!=NULL){
         int indice = actual->valor;
-        Cuadrupla *c = tc;
+        Cuadrupla *c = *tc;
         int pos = 0;
         while (c != NULL && pos<indice){
             c = c->sig;

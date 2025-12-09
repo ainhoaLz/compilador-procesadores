@@ -10,3 +10,5 @@ typedef CeldaEntero* ListaEnteros;
 ListaEnteros nuevaListaEnteros(int valor);
 ListaEnteros juntarListas(ListaEnteros lista1, ListaEnteros lista2);
 int vaciarLista(ListaEnteros lista);
+
+#endif

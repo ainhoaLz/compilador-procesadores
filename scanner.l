@@ -18,6 +18,7 @@
 	#include "nombresDeTipos.h"
 	#include "literal.h"
 	#include "parser.tab.h"
+	#include "listaEnteros.h"
 
 	void errorEnScanner(char*, char*); //prototipo necesario para compilar
 
@@ -89,9 +90,7 @@ puntoDR \.
 	return constTK;
 }
 {falsoDR}	{
-	yylval.literal.tipoDelValor = BOOLEANO;
-	yylval.literal.valor.valorBooleano = FALSO;
-	return literalTK;
+	return falsoTK;
 }
 {fconstDR}	{
 	return fconstTK;
@@ -179,9 +178,7 @@ puntoDR \.
 	return puntoYcomaTK;
 }
 {verdaderoDR}	{
-	yylval.literal.tipoDelValor = BOOLEANO;
-	yylval.literal.valor.valorBooleano = VERDADERO;
-	return literalTK;
+	return verdaderoTK;
 }
 {comparacionDR}	{
 	return comparacionTK;
