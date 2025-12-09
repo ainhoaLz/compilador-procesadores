@@ -32,7 +32,7 @@ literalEnteroDR	[0-9]+
 literalRealDR	{literalEnteroDR}[rR]
 puntoYcomaDR	;
 verdaderoDR	(?i:verdadero)
-comparacionDR <|<=|>|>=|<>
+comparacionDR <|<=|>|>=
 sumaYrestaDR \+|\-
 divisionYmultiplicacionDR (?i:mod)|(?i:div)|\*
 comillasDR \"
@@ -97,6 +97,9 @@ puntoDR \.
 }
 =	{
 	return igualTK;
+}
+<>	{
+	return distintoTK;
 }
 ,	{
 	return separadorTK;

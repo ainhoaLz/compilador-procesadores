@@ -21,6 +21,7 @@
 %token constTK
 %token fconstTK
 %token igualTK
+%token distintoTK
 %token separadorTK
 %token dosPuntosTK
 %token aperturaParentesisTK
@@ -221,7 +222,19 @@ expresion: expresion sumaYrestaTK expresion {
         aux.tipo = $1.tipoDelValor;
         $$ = aux;
     }
-    | sumaYrestaTK expresion {}
+    | sumaYrestaTK expresion {
+        infoVariable empty, temp;
+        memset(&empty, 0, sizeof(infoVariable));
+        empty.tipo = NULO;
+        empty.name = NULL;
+        char name[10];
+        sprintf(name, "t%d", tempCont++);
+        temp.name = malloc(strlen(name) + 1);
+        strcpy(temp.name, name);
+        temp.tipo = $2.tipo;
+        agregarCuadrupla(&tc, nuevaCuadrupla($1, $2, empty, temp));
+        $$ = temp;
+    }
     | expresion yTK M expresion {
         backpatch(&tc, $1.listaTrue, $3);
         $$.listaTrue = $4.listaTrue;
@@ -249,8 +262,158 @@ expresion: expresion sumaYrestaTK expresion {
         $$.listaTrue = NULL;
         $$.tipo = BOOLEANO;
     }
-    | expresion comparacionTK expresion {}
-    | expresion igualTK expresion {}
+    | expresion comparacionTK expresion {
+        $$.tipo = BOOLEANO;
+        infoVariable temp;
+        bool esNumerico = ($1.tipo == ENTERO || $1.tipo == REAL) && ($3.tipo == ENTERO || $3.tipo == REAL);
+        if(!esNumerico){
+            printf("Error: Tipos incompatibles\n");
+        }
+        if(esNumerico){
+            if($1.tipo == REAL || $3.tipo == REAL){
+                char name[10];
+                sprintf(name, "t%d", tempCont++);
+                temp.name = malloc(strlen(name) + 1);
+                strcpy(temp.name, name);
+                temp.tipo = REAL;
+                agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+            }
+            else{
+                char name[10];
+                sprintf(name, "t%d", tempCont++);
+                temp.name = malloc(strlen(name) + 1);
+                strcpy(temp.name, name);
+                temp.tipo = ENTERO;
+                agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+            }
+        $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+        $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+
+    }
+    | expresion distintoTK expresion {
+        $$.tipo = BOOLEANO;
+        infoVariable temp;
+        bool esNumerico = ($1.tipo == ENTERO || $1.tipo == REAL) && ($3.tipo == ENTERO || $3.tipo == REAL);
+        if(esNumerico){
+            if($1.tipo == REAL || $3.tipo == REAL){
+                char name[10];
+                sprintf(name, "t%d", tempCont++);
+                temp.name = malloc(strlen(name) + 1);
+                strcpy(temp.name, name);
+                temp.tipo = REAL;
+                agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+            }
+            else{
+                char name[10];
+                sprintf(name, "t%d", tempCont++);
+                temp.name = malloc(strlen(name) + 1);
+                strcpy(temp.name, name);
+                temp.tipo = ENTERO;
+                agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+            }
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else if($1.tipo == CARACTER && $3.tipo == CARACTER){
+            char name[10];
+            sprintf(name, "t%d", tempCont++);
+            temp.name = malloc(strlen(name) + 1);
+            strcpy(temp.name, name);
+            temp.tipo = CARACTER;
+            agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else if($1.tipo == CADENA && $3.tipo == CADENA){
+            char name[10];
+            sprintf(name, "t%d", tempCont++);
+            temp.name = malloc(strlen(name) + 1);
+            strcpy(temp.name, name);
+            temp.tipo = CADENA;
+            agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else if($1.tipo == BOOLEANO && $3.tipo == BOOLEANO){
+            char name[10];
+            sprintf(name, "t%d", tempCont++);
+            temp.name = malloc(strlen(name) + 1);
+            strcpy(temp.name, name);
+            temp.tipo = BOOLEANO;
+            agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else{
+            printf("Error: Tipos incompatibles\n");
+        }
+    }
+    | expresion igualTK expresion {
+        $$.tipo = BOOLEANO;
+        infoVariable temp;
+        bool esNumerico = ($1.tipo == ENTERO || $1.tipo == REAL) && ($3.tipo == ENTERO || $3.tipo == REAL);
+        if(esNumerico){
+            if($1.tipo == REAL || $3.tipo == REAL){
+                char name[10];
+                sprintf(name, "t%d", tempCont++);
+                temp.name = malloc(strlen(name) + 1);
+                strcpy(temp.name, name);
+                temp.tipo = REAL;
+                agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+            }
+            else{
+                char name[10];
+                sprintf(name, "t%d", tempCont++);
+                temp.name = malloc(strlen(name) + 1);
+                strcpy(temp.name, name);
+                temp.tipo = ENTERO;
+                agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+            }
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else if($1.tipo == CARACTER && $3.tipo == CARACTER){
+            char name[10];
+            sprintf(name, "t%d", tempCont++);
+            temp.name = malloc(strlen(name) + 1);
+            strcpy(temp.name, name);
+            temp.tipo = CARACTER;
+            agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else if($1.tipo == CADENA && $3.tipo == CADENA){
+            char name[10];
+            sprintf(name, "t%d", tempCont++);
+            temp.name = malloc(strlen(name) + 1);
+            strcpy(temp.name, name);
+            temp.tipo = CADENA;
+            agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else if($1.tipo == BOOLEANO && $3.tipo == BOOLEANO){
+            char name[10];
+            sprintf(name, "t%d", tempCont++);
+            temp.name = malloc(strlen(name) + 1);
+            strcpy(temp.name, name);
+            temp.tipo = BOOLEANO;
+            agregarCuadrupla(&tc, nuevaCuadrupla($2, $1, $3, temp));
+
+            $$.listaTrue = nuevaListaEnteros(siguienteCuadrupla(&tc));
+            $$.listaFalse = nuevaListaEnteros(siguienteCuadrupla((&tc)+1));
+        }
+        else{
+            printf("Error: Tipos incompatibles\n");
+        }
+    }
     | aperturaParentesisTK expresion cierreParentesisTK {
         $$.name = $2.name;
         $$.tipo = $2.tipo;
